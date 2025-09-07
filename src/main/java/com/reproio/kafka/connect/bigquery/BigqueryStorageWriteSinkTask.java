@@ -140,8 +140,14 @@ public class BigqueryStorageWriteSinkTask extends SinkTask {
     }
 
     currentOffsets.forEach(
-        (topicPartition, offsetAndMetadata) ->
-            flushTopicPartitionWriter(topicPartitionWriters.get(topicPartition), topicPartition));
+        (topicPartition, offsetAndMetadata) -> {
+          var writer = topicPartitionWriters.get(topicPartition);
+          if (writer != null) {
+            flushTopicPartitionWriter(topicPartitionWriters.get(topicPartition), topicPartition);
+          } else {
+            log.warn("No writer found for topic partition: {}", topicPartition);
+          }
+        });
   }
 
   @Override
